@@ -1,5 +1,5 @@
-from Home.forms import ContactForm
 from django.shortcuts import render
+from django.core.mail import BadHeaderError, send_mail
 
 
 def index(request):
@@ -18,14 +18,14 @@ def services(request):
 
 
 def contact(request):
-    """ Render contact page """
-
-    form = ContactForm(request.POST or None)
-
-    if form.is_valid():
-        content = form.cleaned_data['content']
-        author = form.cleaned_data['author']
-
-        # Send the  mail here
-
+    author = request.POST.get('author', '')
+    content = request.POST.get('content', '')
+    message = ""
+    if author and content:
+        try:
+            send_mail("Message from Marronile.com", content,
+                      author, ['dah.kenangnon@gmail.com'])
+            message = "Email envoyé avec succès!"
+        except BadHeaderError:
+            message = "Erreur inconnue"
     return render(request, 'Home/contact.html', locals())
